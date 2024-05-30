@@ -1,3 +1,4 @@
+
 import sqlite3
 
 def inscrever_usuario():
