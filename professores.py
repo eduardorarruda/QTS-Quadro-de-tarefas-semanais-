@@ -99,3 +99,49 @@ def alterar_horario_materia():
         print("Erro ao acessar o banco de dados:", e)
     finally:
         banco.close()  # Fecha a conexão com o banco de dados
+
+# Função para cadastrar uma nova matéria (para uso do professor)
+def cadastrar_nova_materia(professor_id):
+    nome = input("Nome da matéria: ")
+    creditos = int(input("Créditos: "))
+    carga_horaria = int(input("Carga horária: "))
+    dia_semana = input("Dia da semana: ")
+    horario_entrada = input("Horario de entrada (HH:MM): ")
+    horario_saida = input("Horario de saída (HH:MM): ")
+
+    banco = sqlite3.connect('bancoDeDados.db')  # Conecta ao banco de dados
+    cursor = banco.cursor()
+
+    try:
+        cursor.execute('''INSERT INTO materias (nome, creditos, carga_horaria, id_professor, dia_semana, horario_entrada, horario_saida) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?)''', (nome, creditos, carga_horaria, professor_id, dia_semana, horario_entrada, horario_saida))
+        banco.commit()  # Confirma as alterações no banco de dados
+        print("Matéria cadastrada com sucesso!")
+    except sqlite3.Error as e:
+        print("Erro ao acessar o banco de dados:", e)
+    finally:
+        banco.close()  # Fecha a conexão com o banco de dados
+
+# Função para excluir uma matéria
+def excluir_materia(professor_id):
+    materia_id = int(input("Digite o ID da matéria que deseja excluir: "))  # Solicita ao usuário o ID da matéria
+
+    banco = sqlite3.connect('bancoDeDados.db')  # Conecta ao banco de dados
+    cursor = banco.cursor()
+
+    try:
+        # Verifica se a matéria pertence ao professor
+        cursor.execute('SELECT id FROM materias WHERE id = ? AND id_professor = ?', (materia_id, professor_id))
+        materia = cursor.fetchone()
+
+        if materia:
+            # Exclui a matéria
+            cursor.execute('DELETE FROM materias WHERE id = ?', (materia_id,))
+            banco.commit()  # Confirma as alterações no banco de dados
+            print("Matéria excluída com sucesso!")
+        else:
+            print("Matéria não encontrada ou não pertence a este professor.")
+    except sqlite3.Error as e:
+        print("Erro ao acessar o banco de dados:", e)
+    finally:
+        banco.close()  # Fecha a conexão com o banco de dados

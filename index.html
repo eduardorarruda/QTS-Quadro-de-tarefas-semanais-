@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu</title>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="menu">
+      <h1>Menu Principal</h1>
+      <button onclick="showInscrever()">Inscrever-se</button>
+      <button onclick="showLogar()">Logar</button>
+      <button onclick="sair()">Sair</button>
+    </div>
+
+    <div id="inscrever" style="display: none">
+      <h2>Inscrever-se</h2>
+      <label for="tipo_usuario">Você é um aluno ou professor?</label>
+      <input type="text" id="tipo_usuario" /><br />
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" /><br />
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" /><br />
+      <label for="email">Email:</label>
+      <input type="email" id="email" /><br />
+      <label for="curso">Curso:</label>
+      <input type="text" id="curso" /><br />
+      <button onclick="inscreverUsuario()">Inscrever</button>
+      <button onclick="showMenu()">Voltar</button>
+      <p id="inscreverResult"></p>
+    </div>
+
+    <div id="logar" style="display: none">
+      <h2>Logar</h2>
+      <label for="logarEmail">Email:</label>
+      <input type="email" id="logarEmail" /><br />
+      <label for="logarSenha">Senha:</label>
+      <input type="password" id="logarSenha" /><br />
+      <button onclick="logarUsuario()">Logar</button>
+      <button onclick="showMenu()">Voltar</button>
+      <p id="logarResult"></p>
+    </div>
+
+    <py-script>
+      import sqlite3
+      from pyscript import Element
+
+      # Função para inscrever um usuário (aluno ou professor)
+      def inscrever_usuario():
+          tipo_usuario = Element("tipo_usuario").value.strip().lower()
+          nome = Element("nome").value
+          senha = Element("senha").value
+          email = Element("email").value
+          curso = Element("curso").value
+
+          conn = sqlite3.connect('bancoDeDados.db')
+          cursor = conn.cursor()
+
+          if tipo_usuario == 'aluno':
+              cursor.execute('INSERT INTO aluno (nome, senha, email, curso, qtd_disciplinas, credito) VALUES (?, ?, ?, ?, ?, ?)',
+                             (nome, senha, email, curso, 0, 200))
+              Element("inscreverResult").element.innerText = "Aluno inscrito com sucesso!"
+          elif tipo_usuario == 'professor':
+              cursor.execute('INSERT INTO professores (nome, senha, email, curso) VALUES (?, ?, ?, ?)',
+                             (nome, senha, email, curso))
+              Element("inscreverResult").element.innerText = "Professor inscrito com sucesso!"
+          else:
+              Element("inscreverResult").element.innerText = "Tipo de usuário inválido."
+
+          conn.commit()
+          conn.close()
+
+      # Função para logar um usuário
+      def logar_usuario():
+          email = Element("logarEmail").value
+          senha = Element("logarSenha").value
+
+          conn = sqlite3.connect('bancoDeDados.db')
+          cursor = conn.cursor()
+
+          cursor.execute('SELECT * FROM aluno WHERE email = ? AND senha = ?', (email, senha))
+          aluno = cursor.fetchone()
+
+          cursor.execute('SELECT * FROM professores WHERE email = ? AND senha = ?', (email, senha))
+          professor = cursor.fetchone()
+
+          if aluno:
+              Element("logarResult").element.innerText = f"Bem-vindo, {aluno[1]}! Você está logado como aluno."
+          elif professor:
+              Element("logarResult").element.innerText = f"Bem-vindo, {professor[1]}! Você está logado como professor."
+          else:
+              Element("logarResult").element.innerText = "Email ou senha incorretos."
+
+          conn.close()
+    </py-script>
+
+    <script>
+      function showInscrever() {
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('inscrever').style.display = 'block';
+      }
+
+      function showLogar() {
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('logar').style.display = 'block';
+      }
+
+      function showMenu() {
+        document.getElementById('menu').style.display = 'block';
+        document.getElementById('inscrever').style.display = 'none';
+        document.getElementById('logar').style.display = 'none';
+      }
+
+      function sair() {
+        alert("Saindo...");
+      }
+
+      function inscreverUsuario() {
+        pyodide.runPython('inscrever_usuario()');
+      }
+
+      function logarUsuario() {
+        pyodide.runPython('logar_usuario()');
+      }
+    </script>
+  </body>
+</html>

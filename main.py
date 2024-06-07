@@ -69,24 +69,6 @@ def ver_materias():
     for materia in materias:
         print(materia)  # Imprime todas as matérias
 
-# Função para cadastrar uma nova matéria (para uso do professor)
-def cadastrar_materia(professor_id):
-    nome = input("Nome da matéria: ")
-    creditos = int(input("Créditos: "))
-    carga_horaria = int(input("Carga horária: "))
-    dia_semana = input("Dia da semana: ")
-    horario_entrada = input("Horario de entrada (HH:MM): ")
-    horario_saida = input("Horario de saída (HH:MM): ")
-
-    banco = sqlite3.connect('bancoDeDados.db')  # Conecta ao banco de dados
-    cursor = banco.cursor()
-    cursor.execute('''INSERT INTO materias (nome, creditos, carga_horaria, id_professor, dia_semana, horario_entrada, horario_saida) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?)''', (nome, creditos, carga_horaria, None, dia_semana, horario_entrada, horario_saida))
-    banco.commit()  # Confirma as alterações no banco de dados
-    banco.close()  # Fecha a conexão com o banco de dados
-
-    print("Matéria cadastrada com sucesso!")
-
 # Menu do aluno com opções específicas para alunos
 def menu_aluno(aluno):
     while True:
@@ -129,10 +111,12 @@ def menu_professor(professor):
         print("\nMenu do Professor:")
         print("1. Ver tabela de matérias")
         print("2. Ver matérias cadastradas")
-        print("3. Cadastrar nova matéria")
-        print("4. Descadastrar-se de uma matéria")
-        print("5. Alterar horário e dia da semana de uma matéria")
-        print("6. Sair")
+        print("3. Cadastrar-se em uma matéria")
+        print("4. Cadastrar nova matéria")
+        print("5. Excluir matéria")
+        print("6. Descadastrar-se de uma matéria")
+        print("7. Alterar horário e dia da semana de uma matéria")
+        print("8. Sair")
         escolha = input("Escolha uma opção: ").strip()
 
         if escolha == '1':
@@ -142,10 +126,14 @@ def menu_professor(professor):
         elif escolha == '3':
             professores.cadastrar_professor_na_materia(professor[0])  # Chama a função de cadastrar professor em uma matéria
         elif escolha == '4':
-            professores.descadastrar_professor_na_materia()  # Chama a função de descadastrar professor de uma matéria
+            professores.cadastrar_nova_materia(professor[0])  # Chama a função de cadastrar nova matéria
         elif escolha == '5':
-            professores.alterar_horario_materia()  # Chama a função de alterar horário de uma matéria
+            professores.excluir_materia(professor[0])  # Chama a função de excluir matéria
         elif escolha == '6':
+           professores.descadastrar_professor_na_materia()  # Chama a função de descadastrar professor de uma matéria
+        elif escolha == '7':
+           professores.alterar_horario_materia()  # Chama a função de alterar horário de uma matéria
+        elif escolha == '8':
             print("Saindo...")
             break
         else:

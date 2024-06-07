@@ -1,0 +1,13 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+#menu,
+#inscrever,
+#logar {
+  margin: 20px;
+}
+
+button {
+  margin-top: 10px;
+}
